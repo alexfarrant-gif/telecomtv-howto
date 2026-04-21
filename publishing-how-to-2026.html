@@ -1,0 +1,1081 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+<meta charset="UTF-8">
+<meta name="viewport" content="width=device-width, initial-scale=1.0">
+<title>TelecomTV Publishing Guide</title>
+<style>
+  *, *::before, *::after { box-sizing: border-box; margin: 0; padding: 0; }
+
+  :root {
+    --blue:       #1F3864;
+    --blue-mid:   #2E5F9E;
+    --blue-light: #e8f1fb;
+    --blue-pale:  #f3f8fe;
+    --purple:     #4B0082;
+    --purple-bg:  #f3eefa;
+    --purple-pale:#faf6ff;
+    --amber:      #6B4100;
+    --amber-bg:   #fff8e6;
+    --green:      #1A5C2A;
+    --green-bg:   #edfaf1;
+    --red:        #7a1a1a;
+    --red-bg:     #fdf0f0;
+    --grey-1:     #f7f7f6;
+    --grey-2:     #eeeeec;
+    --grey-3:     #c8c8c4;
+    --grey-4:     #888884;
+    --grey-5:     #444441;
+    --text:       #1a1a18;
+    --text-2:     #555552;
+    --text-3:     #888884;
+    --border:     rgba(0,0,0,0.1);
+    --radius:     10px;
+    --radius-sm:  6px;
+  }
+
+  body {
+    font-family: -apple-system, BlinkMacSystemFont, 'Segoe UI', Helvetica, Arial, sans-serif;
+    font-size: 15px;
+    line-height: 1.65;
+    color: var(--text);
+    background: #f4f5f7;
+    min-height: 100vh;
+  }
+
+  /* ── Layout ── */
+  .shell {
+    display: grid;
+    grid-template-columns: 260px 1fr;
+    grid-template-rows: auto 1fr;
+    min-height: 100vh;
+    max-width: 1180px;
+    margin: 0 auto;
+    background: #fff;
+    box-shadow: 0 0 0 1px var(--border);
+  }
+
+  /* ── Header ── */
+  .header {
+    grid-column: 1 / -1;
+    background: var(--blue);
+    color: #fff;
+    padding: 20px 28px;
+    display: flex;
+    align-items: center;
+    justify-content: space-between;
+    gap: 16px;
+  }
+  .header-title { font-size: 17px; font-weight: 600; letter-spacing: -0.2px; }
+  .header-sub   { font-size: 13px; opacity: 0.65; margin-top: 2px; }
+  .mode-toggle  {
+    display: flex;
+    background: rgba(255,255,255,0.12);
+    border-radius: 8px;
+    padding: 3px;
+    gap: 2px;
+    flex-shrink: 0;
+  }
+  .mode-btn {
+    border: none;
+    background: transparent;
+    color: rgba(255,255,255,0.7);
+    font-size: 12px;
+    font-weight: 500;
+    padding: 5px 12px;
+    border-radius: 6px;
+    cursor: pointer;
+    transition: all 0.15s;
+    white-space: nowrap;
+  }
+  .mode-btn.active { background: #fff; color: var(--blue); }
+
+  /* ── Sidebar ── */
+  .sidebar {
+    border-right: 1px solid var(--grey-2);
+    padding: 20px 0;
+    overflow-y: auto;
+    position: sticky;
+    top: 0;
+    height: calc(100vh - 69px);
+  }
+  .sidebar-section {
+    font-size: 10px;
+    font-weight: 600;
+    text-transform: uppercase;
+    letter-spacing: 0.8px;
+    color: var(--text-3);
+    padding: 14px 20px 6px;
+  }
+  .sidebar-item {
+    display: flex;
+    align-items: center;
+    gap: 10px;
+    padding: 7px 20px;
+    font-size: 13px;
+    color: var(--text-2);
+    cursor: pointer;
+    border-left: 3px solid transparent;
+    transition: all 0.12s;
+    line-height: 1.3;
+  }
+  .sidebar-item:hover { background: var(--grey-1); color: var(--text); }
+  .sidebar-item.active { background: var(--blue-pale); color: var(--blue-mid); border-left-color: var(--blue-mid); font-weight: 500; }
+  .sidebar-item.active .step-num { background: var(--blue-mid); color: #fff; }
+  .sidebar-item.editorial-only { display: none; }
+  .sidebar-item.editorial-only.show { display: flex; }
+  .step-num {
+    width: 22px; height: 22px;
+    border-radius: 50%;
+    background: var(--grey-2);
+    color: var(--grey-4);
+    font-size: 11px;
+    font-weight: 600;
+    display: flex; align-items: center; justify-content: center;
+    flex-shrink: 0;
+  }
+  .step-num.done { background: var(--green-bg); color: var(--green); }
+  .sidebar-item.completed .step-num { background: var(--green-bg); color: var(--green); }
+
+  /* ── Main ── */
+  .main {
+    padding: 0;
+    display: flex;
+    flex-direction: column;
+  }
+
+  /* ── Progress ── */
+  .progress-bar {
+    height: 3px;
+    background: var(--grey-2);
+    position: relative;
+  }
+  .progress-fill {
+    height: 100%;
+    background: var(--blue-mid);
+    transition: width 0.3s ease;
+  }
+
+  /* ── Step content ── */
+  .step-view {
+    flex: 1;
+    padding: 32px 36px;
+    max-width: 740px;
+  }
+
+  .step-meta {
+    display: flex;
+    align-items: center;
+    gap: 10px;
+    margin-bottom: 6px;
+  }
+  .part-label {
+    font-size: 11px;
+    font-weight: 600;
+    text-transform: uppercase;
+    letter-spacing: 0.6px;
+    color: var(--text-3);
+  }
+  .tag {
+    font-size: 11px;
+    font-weight: 500;
+    padding: 2px 8px;
+    border-radius: 4px;
+  }
+  .tag-editorial { background: var(--purple-bg); color: var(--purple); }
+  .tag-new       { background: var(--green-bg);  color: var(--green);  }
+  .tag-updated   { background: var(--amber-bg);  color: var(--amber);  }
+  .tag-general   { background: var(--blue-light); color: var(--blue-mid); }
+
+  .step-title {
+    font-size: 22px;
+    font-weight: 600;
+    color: var(--text);
+    line-height: 1.3;
+    margin-bottom: 6px;
+  }
+  .step-subtitle {
+    font-size: 14px;
+    color: var(--text-3);
+    margin-bottom: 24px;
+  }
+
+  /* ── Content blocks ── */
+  .step-body { display: flex; flex-direction: column; gap: 16px; }
+
+  p { font-size: 15px; color: var(--text-2); }
+
+  ol, ul { padding-left: 20px; display: flex; flex-direction: column; gap: 7px; }
+  li { font-size: 15px; color: var(--text-2); }
+  li strong { color: var(--text); font-weight: 500; }
+
+  /* ── Callout boxes ── */
+  .callout {
+    border-radius: var(--radius-sm);
+    padding: 14px 16px;
+    font-size: 14px;
+    border-left: 3px solid;
+  }
+  .callout-title { font-weight: 600; margin-bottom: 6px; font-size: 13px; }
+  .callout p, .callout li { font-size: 14px; }
+  .callout.info     { background: var(--blue-light); border-color: var(--blue-mid); color: var(--blue); }
+  .callout.info .callout-title { color: var(--blue); }
+  .callout.info p, .callout.info li { color: #244878; }
+  .callout.editorial { background: var(--purple-bg); border-color: var(--purple); }
+  .callout.editorial .callout-title { color: var(--purple); }
+  .callout.editorial p, .callout.editorial li { color: #3a006a; }
+  .callout.warning  { background: var(--amber-bg); border-color: #c89020; }
+  .callout.warning .callout-title { color: var(--amber); }
+  .callout.warning p, .callout.warning li { color: var(--amber); }
+  .callout.success  { background: var(--green-bg); border-color: #2a8a44; }
+  .callout.success .callout-title { color: var(--green); }
+  .callout.success p, .callout.success li { color: #155225; }
+  .callout.danger   { background: var(--red-bg); border-color: #c44; }
+  .callout.danger .callout-title { color: var(--red); }
+  .callout.danger p, .callout.danger li { color: var(--red); }
+
+  .callout.editorial { display: none; }
+  .callout.editorial.show { display: block; }
+  .editorial-block { display: none; }
+  .editorial-block.show { display: flex; flex-direction: column; gap: 16px; }
+
+  /* ── Two-column diff ── */
+  .diff-cols {
+    display: grid;
+    grid-template-columns: 1fr 1fr;
+    gap: 12px;
+  }
+  .diff-col {
+    border-radius: var(--radius-sm);
+    padding: 14px 16px;
+    border: 1px solid var(--grey-2);
+  }
+  .diff-col.general   { background: var(--grey-1); }
+  .diff-col.editorial { background: var(--purple-pale); border-color: #ddd0f5; }
+  .diff-col-title {
+    font-size: 11px;
+    font-weight: 600;
+    text-transform: uppercase;
+    letter-spacing: 0.6px;
+    margin-bottom: 8px;
+  }
+  .diff-col.general   .diff-col-title { color: var(--blue-mid); }
+  .diff-col.editorial .diff-col-title { color: var(--purple); }
+  .diff-col p, .diff-col li { font-size: 13.5px; color: var(--text-2); }
+
+  /* ── Screenshot placeholder ── */
+  .screenshot {
+    border: 1.5px dashed var(--grey-3);
+    border-radius: var(--radius);
+    background: var(--grey-1);
+    display: flex;
+    flex-direction: column;
+    align-items: center;
+    justify-content: center;
+    gap: 8px;
+    padding: 28px 20px;
+    text-align: center;
+    color: var(--text-3);
+    font-size: 13px;
+  }
+  .screenshot-icon {
+    width: 36px; height: 36px;
+    border: 2px solid var(--grey-3);
+    border-radius: 6px;
+    display: flex; align-items: center; justify-content: center;
+    font-size: 18px;
+  }
+  .screenshot strong { color: var(--grey-4); font-size: 13px; font-weight: 500; }
+
+  /* ── Critical badge ── */
+  .critical {
+    display: inline-flex;
+    align-items: center;
+    gap: 5px;
+    background: var(--red-bg);
+    color: var(--red);
+    font-size: 12px;
+    font-weight: 600;
+    padding: 3px 10px;
+    border-radius: 4px;
+    margin-bottom: 8px;
+  }
+
+  /* ── Checklist ── */
+  .checklist { display: flex; flex-direction: column; gap: 6px; }
+  .check-item {
+    display: flex;
+    align-items: flex-start;
+    gap: 10px;
+    font-size: 14px;
+    color: var(--text-2);
+    padding: 8px 12px;
+    border-radius: var(--radius-sm);
+    border: 1px solid var(--grey-2);
+    background: #fff;
+    cursor: pointer;
+    transition: background 0.1s;
+  }
+  .check-item:hover { background: var(--grey-1); }
+  .check-item input[type=checkbox] { margin-top: 1px; flex-shrink: 0; accent-color: var(--blue-mid); width: 15px; height: 15px; }
+  .check-item.checked { background: var(--green-bg); border-color: #b5dfc2; color: #1a4a28; text-decoration: line-through; opacity: 0.75; }
+
+  /* ── Nav buttons ── */
+  .step-nav {
+    display: flex;
+    align-items: center;
+    justify-content: space-between;
+    padding: 20px 36px 28px;
+    border-top: 1px solid var(--grey-2);
+    gap: 12px;
+  }
+  .btn {
+    display: inline-flex;
+    align-items: center;
+    gap: 6px;
+    padding: 9px 18px;
+    border-radius: 8px;
+    font-size: 14px;
+    font-weight: 500;
+    cursor: pointer;
+    border: 1px solid var(--grey-2);
+    background: #fff;
+    color: var(--text);
+    transition: all 0.12s;
+  }
+  .btn:hover { background: var(--grey-1); }
+  .btn-primary {
+    background: var(--blue-mid);
+    color: #fff;
+    border-color: var(--blue-mid);
+  }
+  .btn-primary:hover { background: #245190; border-color: #245190; }
+  .btn:disabled { opacity: 0.35; cursor: not-allowed; }
+  .nav-step-info { font-size: 13px; color: var(--text-3); text-align: center; }
+
+  /* ── Intro / overview screen ── */
+  .overview {
+    padding: 40px 36px;
+    max-width: 740px;
+  }
+  .overview h1 { font-size: 26px; font-weight: 600; margin-bottom: 8px; }
+  .overview .lead { font-size: 16px; color: var(--text-2); margin-bottom: 28px; }
+  .overview-cards {
+    display: grid;
+    grid-template-columns: 1fr 1fr;
+    gap: 14px;
+    margin-bottom: 28px;
+  }
+  .ov-card {
+    border: 1px solid var(--grey-2);
+    border-radius: var(--radius);
+    padding: 18px 20px;
+    cursor: pointer;
+    transition: all 0.15s;
+  }
+  .ov-card:hover { border-color: var(--blue-mid); background: var(--blue-pale); }
+  .ov-card.selected { border-color: var(--blue-mid); background: var(--blue-pale); box-shadow: 0 0 0 2px var(--blue-light); }
+  .ov-card-icon { font-size: 22px; margin-bottom: 8px; }
+  .ov-card h3 { font-size: 15px; font-weight: 600; margin-bottom: 4px; }
+  .ov-card p  { font-size: 13px; color: var(--text-2); }
+  .notice {
+    background: var(--amber-bg);
+    border: 1px solid #e5c060;
+    border-radius: var(--radius-sm);
+    padding: 14px 16px;
+    font-size: 13.5px;
+    color: var(--amber);
+    margin-bottom: 20px;
+  }
+  .notice strong { color: var(--amber); }
+
+  /* ── Final screen ── */
+  .final {
+    padding: 48px 36px;
+    max-width: 680px;
+    text-align: center;
+  }
+  .final-icon { font-size: 48px; margin-bottom: 16px; }
+  .final h2 { font-size: 22px; font-weight: 600; margin-bottom: 10px; }
+  .final p  { color: var(--text-2); margin-bottom: 24px; }
+
+  code {
+    background: var(--grey-2);
+    border-radius: 3px;
+    padding: 1px 5px;
+    font-size: 13px;
+    font-family: 'SF Mono', 'Fira Code', monospace;
+  }
+
+  /* ── Screenshots ── */
+  .screenshot-wrap {
+    border: 1px solid var(--grey-2);
+    border-radius: var(--radius);
+    overflow: hidden;
+    background: var(--grey-1);
+  }
+  .screenshot-wrap img {
+    width: 100%;
+    display: block;
+  }
+  .screenshot-caption {
+    font-size: 12px;
+    color: var(--text-3);
+    padding: 7px 12px;
+    border-top: 1px solid var(--grey-2);
+    background: var(--grey-1);
+  }
+  .screenshot-set { display: flex; flex-direction: column; gap: 10px; }
+  .screenshot-set-label {
+    font-size: 11px;
+    font-weight: 600;
+    text-transform: uppercase;
+    letter-spacing: 0.5px;
+    color: var(--text-3);
+    margin-bottom: 2px;
+  }
+
+  a { color: var(--blue-mid); }
+
+  @media (max-width: 700px) {
+    .shell { grid-template-columns: 1fr; }
+    .sidebar { display: none; }
+    .diff-cols { grid-template-columns: 1fr; }
+    .overview-cards { grid-template-columns: 1fr; }
+    .step-view, .step-nav, .overview { padding-left: 20px; padding-right: 20px; }
+  }
+</style>
+</head>
+<body>
+
+<div class="shell" id="shell">
+
+  <!-- Header -->
+  <header class="header">
+    <div>
+      <div class="header-title">TelecomTV Publishing Guide</div>
+      <div class="header-sub">Video publishing — step by step</div>
+    </div>
+    <div class="mode-toggle">
+      <button class="mode-btn active" id="btn-general"  onclick="setMode('general')">General</button>
+      <button class="mode-btn"        id="btn-editorial" onclick="setMode('editorial')">Editorial (Claire)</button>
+    </div>
+  </header>
+
+  <!-- Sidebar -->
+  <nav class="sidebar" id="sidebar">
+    <div class="sidebar-section">Overview</div>
+    <div class="sidebar-item" data-step="0" onclick="goStep(0)">
+      <span class="step-num">i</span> Introduction
+    </div>
+
+    <div class="sidebar-section">Part 1 — Upstream</div>
+    <div class="sidebar-item" data-step="1" onclick="goStep(1)">
+      <span class="step-num">1</span> Editor uploads to Vimeo
+    </div>
+    <div class="sidebar-item" data-step="2" onclick="goStep(2)">
+      <span class="step-num">2</span> Internal review
+    </div>
+    <div class="sidebar-item" data-step="3" onclick="goStep(3)">
+      <span class="step-num">3</span> Sign-off
+    </div>
+    <div class="sidebar-item" data-step="4" onclick="goStep(4)">
+      <span class="step-num" style="background:var(--grey-2);color:var(--grey-4);">4</span> Transcription (archived)
+    </div>
+    <div class="sidebar-item" data-step="5" onclick="goStep(5)">
+      <span class="step-num">5</span> Metadata
+    </div>
+    <div class="sidebar-item" data-step="6" onclick="goStep(6)">
+      <span class="step-num">6</span> Copy editing
+    </div>
+
+    <div class="sidebar-section">Part 2 — Publishing</div>
+    <div class="sidebar-item" data-step="7" onclick="goStep(7)">
+      <span class="step-num">7</span> Prerequisites check
+    </div>
+    <div class="sidebar-item" data-step="8" onclick="goStep(8)">
+      <span class="step-num">8</span> Move card to Processing
+    </div>
+    <div class="sidebar-item" data-step="9" onclick="goStep(9)">
+      <span class="step-num">9</span> Download thumbnail
+    </div>
+    <div class="sidebar-item" data-step="10" onclick="goStep(10)">
+      <span class="step-num">10</span> Vimeo → YouTube
+    </div>
+    <div class="sidebar-item" data-step="11" onclick="goStep(11)">
+      <span class="step-num">11</span> YouTube Studio details
+    </div>
+    <div class="sidebar-item" data-step="12" onclick="goStep(12)">
+      <span class="step-num">12</span> Upload image to CMS
+    </div>
+    <div class="sidebar-item" data-step="13" onclick="goStep(13)">
+      <span class="step-num">13</span> Create video in CMS
+    </div>
+    <div class="sidebar-item" data-step="14" onclick="goStep(14)">
+      <span class="step-num">14</span> Create content page
+    </div>
+    <div class="sidebar-item" data-step="15" onclick="goStep(15)">
+      <span class="step-num">15</span> Tags &amp; metadata
+    </div>
+    <div class="sidebar-item" data-step="16" onclick="goStep(16)">
+      <span class="step-num">16</span> Publishing flags &amp; save
+    </div>
+    <div class="sidebar-item" data-step="17" onclick="goStep(17)">
+      <span class="step-num">17</span> Preview &amp; notify Alex
+    </div>
+    <div class="sidebar-item" data-step="18" onclick="goStep(18)">
+      <span class="step-num">✓</span> Done
+    </div>
+  </nav>
+
+  <!-- Main -->
+  <main class="main" id="main-area">
+    <div class="progress-bar"><div class="progress-fill" id="progress-fill"></div></div>
+    <div id="step-content"></div>
+    <div class="step-nav" id="step-nav">
+      <button class="btn" id="btn-prev" onclick="prevStep()">← Back</button>
+      <div class="nav-step-info" id="nav-info"></div>
+      <button class="btn btn-primary" id="btn-next" onclick="nextStep()">Next →</button>
+    </div>
+  </main>
+
+</div>
+
+<script>
+const TOTAL = 19;
+let current = 0;
+let mode = 'general';
+
+function setMode(m) {
+  mode = m;
+  document.getElementById('btn-general').classList.toggle('active', m === 'general');
+  document.getElementById('btn-editorial').classList.toggle('active', m === 'editorial');
+  document.querySelectorAll('.callout.editorial').forEach(el => el.classList.toggle('show', m === 'editorial'));
+  document.querySelectorAll('.editorial-block').forEach(el => el.classList.toggle('show', m === 'editorial'));
+  document.querySelectorAll('.diff-col.editorial').forEach(el => {
+    el.style.display = '';
+  });
+  renderStep(current);
+}
+
+function goStep(n) {
+  current = n;
+  renderStep(n);
+}
+function nextStep() { if (current < TOTAL - 1) { current++; renderStep(current); } }
+function prevStep() { if (current > 0) { current--; renderStep(current); } }
+
+function img(src, caption) {
+  return `<div class="screenshot-wrap"><img src="${src}" alt="${caption}"><div class="screenshot-caption">${caption}</div></div>`;
+}
+function placeholder(label) {
+  return `<div class="screenshot"><div class="screenshot-icon">📷</div><strong>Screenshot pending</strong><span>${label}</span></div>`;
+}
+// keep old name for any remaining calls
+function screenshot(label) { return placeholder(label); }
+
+function renderStep(n) {
+  const content = document.getElementById('step-content');
+  const navInfo  = document.getElementById('nav-info');
+  const btnPrev  = document.getElementById('btn-prev');
+  const btnNext  = document.getElementById('btn-next');
+  const fill     = document.getElementById('progress-fill');
+
+  fill.style.width = (n / (TOTAL - 1) * 100) + '%';
+  btnPrev.disabled = n === 0;
+  btnNext.disabled = n === TOTAL - 1;
+  btnNext.textContent = n === TOTAL - 2 ? 'Finish ✓' : 'Next →';
+  navInfo.textContent = n === 0 ? '' : `Step ${n} of ${TOTAL - 2}`;
+
+  document.querySelectorAll('.sidebar-item').forEach(el => {
+    el.classList.toggle('active', parseInt(el.dataset.step) === n);
+  });
+
+  const isEditorial = mode === 'editorial';
+
+  const html = steps[n](isEditorial);
+  content.innerHTML = html;
+
+  content.querySelectorAll('.check-item').forEach(item => {
+    item.querySelector('input').addEventListener('change', function() {
+      item.classList.toggle('checked', this.checked);
+    });
+  });
+
+  window.scrollTo(0, 0);
+}
+
+const steps = [
+
+  // 0 — Intro
+  (ed) => `
+  <div class="overview">
+    <h1>TelecomTV video publishing</h1>
+    <p class="lead">A step-by-step guide to getting a video from Vimeo to live on TelecomTV.com and YouTube. Use the mode toggle at the top right to switch between the general process and the editorial-specific version.</p>
+
+    <div class="notice">
+      <strong>⚠ Upcoming change:</strong> The metadata tool is currently used for commercial content only. It will shortly roll out to editorial content too, which will change how titles and descriptions are sourced for editorial videos. This guide will be updated when that happens.
+    </div>
+
+    <p style="font-size:14px; color:var(--text-2); margin-bottom:16px; font-weight:500;">The main difference between content types:</p>
+    <div class="diff-cols" style="margin-bottom:28px;">
+      <div class="diff-col general">
+        <div class="diff-col-title">Commercial</div>
+        <p>Title and description are generated by the <strong>metadata tool</strong> from the video transcript, then copy-edited.</p>
+      </div>
+      <div class="diff-col editorial">
+        <div class="diff-col-title">📋 Editorial</div>
+        <p>Title and description are supplied directly by <strong>Ray Le Maistre</strong> or written by the copy editor.</p>
+        <p style="margin-top:8px;">Everything else in the publishing process is the same.</p>
+      </div>
+    </div>
+
+    <p style="font-size:13px; color:var(--text-3);">This guide assumes you are familiar with Trello basics. If you need a login for any tool, see the <strong>Quick Reference</strong> section at the end, or ask Alex.</p>
+  </div>`,
+
+  // 1
+  () => `
+  <div class="step-view">
+    <div class="step-meta"><span class="part-label">Part 1 — Upstream</span></div>
+    <h1 class="step-title">Editor uploads to Vimeo</h1>
+    <p class="step-subtitle">Context step — you don't own this, but it's useful to understand.</p>
+    <div class="step-body">
+      <p>Gino (editor) edits the video and uploads the final cut to Vimeo. Vimeo is used for storing and reviewing all unpublished content, and for sending review links to clients.</p>
+      <ul>
+        <li>The Vimeo filename includes the <strong>Production ID</strong> — a unique tracking number that follows the content through every tool in the workflow.</li>
+        <li>All unpublished content lives in Vimeo until it is ready to publish.</li>
+        <li>The Production ID is also added to the Trello card title, the Rev transcript title, and the metadata tool title — so you can always find the right version of a piece of content.</li>
+      </ul>
+      <div class="screenshot-set">
+        <div class="screenshot-set-label">Trello card + Vimeo — Production ID tracks across both tools</div>
+        ${img('step-01-vimeo-trello.png', 'Left: Trello card showing Production ID 26118 in title, guest details in description, and IN CLIENT REVIEW column label. Right: Vimeo library showing the same Production ID at the start of the filename.')}
+      </div>
+    </div>
+  </div>`,
+
+  // 2
+  () => `
+  <div class="step-view">
+    <div class="step-meta"><span class="part-label">Part 1 — Upstream</span></div>
+    <h1 class="step-title">Internal review</h1>
+    <p class="step-subtitle">Context step — useful Trello tips included here.</p>
+    <div class="step-body">
+      <p>After editing, the card moves to the <strong>Reviewed Internally</strong> column on the Video Edit &amp; Post-Production board.</p>
+      <p>The review checks: correct content on card, correct name straps in the edit, any editing errors, overall quality.</p>
+      <div class="callout info">
+        <div class="callout-title">Useful Trello tips</div>
+        <ul>
+          <li><strong>Finding a card:</strong> search by Production ID. The grey text below the result shows <em>Board: Column</em>.</li>
+          <li><strong>Moving a card:</strong> use the Move option (top-left inside the card) rather than click-and-drag — dragging can misfire on slow connections.</li>
+          <li><strong>Sharing a card link:</strong> three-dot menu → Share → copy the Trello link.</li>
+          <li><strong>Filtering your board view:</strong> use the Filter Cards dropdown (top right) to show only cards assigned to you, or by label/due date.</li>
+        </ul>
+      </div>
+      <div class="screenshot-set">
+        ${img('step-02-trello-reviewed.png', 'The Video Edit & Post Production board showing the review columns. Cards move left to right through the workflow. Note the custom fields visible on expanded cards — Production Number, Presenter, Video Owner etc.')}
+      </div>
+    </div>
+  </div>`,
+
+  // 3
+  (ed) => `
+  <div class="step-view">
+    <div class="step-meta"><span class="part-label">Part 1 — Upstream</span></div>
+    <h1 class="step-title">Sign-off</h1>
+    <div class="step-body">
+      <p>Before publishing, content needs sign-off. Who provides it depends on the content type.</p>
+      <div class="diff-cols">
+        <div class="diff-col general">
+          <div class="diff-col-title">Commercial</div>
+          <p>Content is sent to the client (by Alex) via a Vimeo link for approval. Edit requests may come back before final sign-off.</p>
+        </div>
+        <div class="diff-col editorial">
+          <div class="diff-col-title">📋 Editorial</div>
+          <p>Sign-off comes from <strong>Ray Le Maistre</strong>. He does not receive a Vimeo link — he is notified via Slack or the Trello card directly.</p>
+        </div>
+      </div>
+    </div>
+  </div>`,
+
+  // 4
+  () => `
+  <div class="step-view">
+    <div class="step-meta"><span class="part-label">Part 1 — Upstream</span><span class="tag tag-updated" style="background:var(--grey-2);color:var(--grey-4);">⊘ Archived</span></div>
+    <h1 class="step-title">Transcription via Rev.com</h1>
+    <p class="step-subtitle">This step is no longer in use.</p>
+    <div class="step-body">
+      <div class="callout danger">
+        <div class="callout-title">Archived — not currently used</div>
+        <p>Rev.com was previously used to generate AI transcripts. The metadata tool now pulls transcripts directly from Vimeo, so this step has been removed from the workflow.</p>
+        <p style="margin-top:6px;">This step is kept here for reference only.</p>
+      </div>
+    </div>
+  </div>`,
+
+  // 5
+  (ed) => `
+  <div class="step-view">
+    <div class="step-meta"><span class="part-label">Part 1 — Upstream</span></div>
+    <h1 class="step-title">Metadata</h1>
+    <p class="step-subtitle">This is the key step that differs between commercial and editorial content.</p>
+    <div class="step-body">
+      <div class="diff-cols">
+        <div class="diff-col general">
+          <div class="diff-col-title">Commercial — metadata tool</div>
+          <ol>
+            <li>Open the metadata tool (password: <code>Password</code>)</li>
+            <li>Select your user</li>
+            <li>Videos are imported direct from Vimeo — the client owner selects the final version for auto-improvement and deletes earlier versions</li>
+            <li>In Library, click Open on the relevant transcript, then save the corrected transcript</li>
+            <li>Click <strong>Generate Metadata</strong> — produces 3 title options, short blurb, long blurb, and tags</li>
+            <li>Export to Trello card. Delete the social clip / social copy sections — these aren't used yet</li>
+          </ol>
+        </div>
+        <div class="diff-col editorial">
+          <div class="diff-col-title">📋 Editorial — supplied directly</div>
+          <ul>
+            <li><strong>Ray Le Maistre</strong> (Editorial Director) provides the title and blurb directly. These are added to the Trello card.</li>
+            <li>Tags are also supplied by Ray. If they are missing when the card reaches you, use the metadata tool to generate them, or ask Alex.</li>
+            <li>Once the metadata tool rolls out to editorial content, this step will change.</li>
+          </ul>
+        </div>
+      </div>
+      <div class="screenshot-set">
+        <div class="screenshot-set-label">Metadata tool walkthrough</div>
+        ${img('step-05D-metadata-tool.png', 'Ingest view — incoming transcripts pending review, pulled automatically from Vimeo. Each entry shows the Production ID filename, word count, and source.')}
+        ${img('step-05A-metadata-tool.png', 'Transcript library — all approved transcripts. Search by Production ID or client name. Status tags show corrected / metadata / manual.')}
+        ${img('step-05B-metadata-tool.png', 'Transcript editor — raw timestamped transcript on the left, corrected clean version on the right. Click Run correction (Claude) to generate the corrected version.')}
+        ${img('step-05C-metadata-tool.png', 'Transcript editor close-up — corrected transcript ready to copy.')}
+        ${img('step-05C1-metadata-tool.png', 'Metadata output — Titles & descriptions tab: 3 title options (select preferred), short blurb, long blurb. Export section at the bottom — click Trello Card to push directly to the card.')}
+      </div>
+    </div>
+  </div>`,
+
+  // 6
+  () => `
+  <div class="step-view">
+    <div class="step-meta"><span class="part-label">Part 1 — Upstream</span></div>
+    <h1 class="step-title">Copy editing</h1>
+    <div class="step-body">
+      <p>The card moves to the <strong>Copy Editing Required</strong> column. Claire reviews and approves the title and description.</p>
+      <ul>
+        <li><strong>Titles:</strong> check for clarity, accuracy, capitalisation, and house style.</li>
+        <li><strong>Descriptions:</strong> check grammar, punctuation, and consistency.</li>
+        <li><strong>Tags:</strong> do not alter unless clearly wrong.</li>
+        <li>Once done, move the card to <strong>Ready to Publish</strong>. This triggers a notification to Alex.</li>
+      </ul>
+    </div>
+  </div>`,
+
+  // 7 — Prerequisites
+  () => `
+  <div class="step-view">
+    <div class="step-meta"><span class="part-label">Part 2 — Publishing</span></div>
+    <h1 class="step-title">Prerequisites — check these first</h1>
+    <p class="step-subtitle">Make sure all of these are in place on the Trello card before you start publishing.</p>
+    <div class="step-body">
+      <div class="checklist">
+        <label class="check-item"><input type="checkbox"> Approved Vimeo URL is in the Trello card custom fields</label>
+        <label class="check-item"><input type="checkbox"> Title and description are copy-edited and on the card</label>
+        <label class="check-item"><input type="checkbox"> Thumbnail image is attached to the card (16:9, under 2 MB)</label>
+        <label class="check-item"><input type="checkbox"> Tags are on the card</label>
+      </div>
+      <div class="callout info">
+        <div class="callout-title">If anything is missing</div>
+        <p>Don't start publishing until the card is complete. Flag to Alex and leave the card in Ready to Publish.</p>
+      </div>
+    </div>
+  </div>`,
+
+  // 8
+  () => `
+  <div class="step-view">
+    <div class="step-meta"><span class="part-label">Part 2 — Publishing</span><span class="tag tag-updated">✎ Updated</span></div>
+    <h1 class="step-title">Move card to Processing</h1>
+    <div class="step-body">
+      <p>Move the Trello card to the <strong>Processing — Uploading to YouTube, Details Pending, Unlisted</strong> column.</p>
+      <p>This tells everyone else that this video is actively being published. Don't leave a card in this column unattended — if you have to stop mid-way, add a comment to the card explaining where you got to.</p>
+      ${placeholder('Trello — card moved to Processing column — screenshot pending')}
+    </div>
+  </div>`,
+
+  // 9
+  () => `
+  <div class="step-view">
+    <div class="step-meta"><span class="part-label">Part 2 — Publishing</span><span class="tag tag-updated">✎ Updated</span></div>
+    <h1 class="step-title">Download the thumbnail from Trello</h1>
+    <div class="step-body">
+      <p>The thumbnail must be downloaded in a specific way to preserve the correct dimensions.</p>
+      <ol>
+        <li>On the Trello card, click the thumbnail image at the top of the card.</li>
+        <li>When the preview appears, right-click → <strong>Open in new tab</strong>. Do <u>not</u> download from the preview panel — Trello alters the dimensions.</li>
+        <li>In the new tab, right-click the full image → <strong>Save image as</strong>. Save to Downloads.</li>
+        <li>Before moving on: check the spelling on the thumbnail, and confirm it looks 16:9.</li>
+      </ol>
+      <div class="callout warning">
+        <div class="callout-title">Image requirements</div>
+        <p>Must be <strong>16:9 aspect ratio</strong> and <strong>under 2 MB</strong>. If the file is over 2 MB, flag to Alex before proceeding.</p>
+      </div>
+      ${img('step-09-thumbnail-download.png', 'The thumbnail opened in a new browser tab via right-click → Open in new tab. Download from here — not from the Trello preview panel which crops the image.')}
+    </div>
+  </div>`,
+
+  // 10
+  (ed) => `
+  <div class="step-view">
+    <div class="step-meta"><span class="part-label">Part 2 — Publishing</span><span class="tag tag-updated">✎ Updated</span></div>
+    <h1 class="step-title">Publish from Vimeo to YouTube</h1>
+    <div class="step-body">
+      <p>The direct Vimeo-to-YouTube push has replaced the old download-and-upload method.</p>
+      <ol>
+        <li>Go to Vimeo. Find the video using the Approved Vimeo URL from the Trello card custom fields.</li>
+        <li>Click <strong>Manage</strong> (below the video) → <strong>Share</strong> → <strong>Publish</strong> → <strong>YouTube</strong>.</li>
+        <li>In the publish box: add title, description, and 3–4 hashtags (always lowercase, e.g. <code>#5g</code>, <code>#huawei</code>). Do not touch Category.</li>
+        <li><span class="critical">⚠ Critical</span>Set Privacy to <strong>Unlisted</strong>. Never publish as Public from Vimeo — this bypasses the review step.</li>
+        <li>Click <strong>Next / Publish</strong>.</li>
+      </ol>
+      <div class="screenshot-set">
+        <div class="screenshot-set-label">Vimeo → YouTube publish flow</div>
+        ${img('step-10A-vimeo-publish.png', 'Vimeo Share panel — Privacy is set to Unlisted. Always confirm this before proceeding. Copy link is available here for sending review links.')}
+        ${img('step-10B-vimeo-publish.png', 'Vimeo Publish destinations — click the YouTube icon to start the publish flow.')}
+        ${img('step-10E-vimeo-publish.png', '"Are you sure you want to publish again?" warning — this appears if the video has been published to YouTube before. Click Publish to proceed.')}
+      </div>
+    </div>
+  </div>`,
+
+  // 11
+  (ed) => `
+  <div class="step-view">
+    <div class="step-meta"><span class="part-label">Part 2 — Publishing</span><span class="tag tag-new">★ New</span></div>
+    <h1 class="step-title">Update details in YouTube Studio</h1>
+    <div class="step-body">
+      <p>Open YouTube → switch to the TelecomTV account (account icon, top-right → switch account) → <a href="https://studio.youtube.com" target="_blank">YouTube Studio</a>.</p>
+      <ol>
+        <li>Go to <strong>Content</strong>. The video from Step 10 appears at the top. Click <strong>Details</strong>.</li>
+        <li><strong>Thumbnail:</strong> Upload file → select the image saved in Step 9.</li>
+        <li><strong>Title:</strong> paste the approved title from the Trello card.</li>
+        <li><strong>Description:</strong> paste the approved description, then add at the end:
+          <ul style="margin-top:6px;">
+            <li><code>Featuring: [Name, Job Title]</code></li>
+            <li><code>Filmed: [Month Year]</code></li>
+            <li>Hashtags (same as Step 10)</li>
+          </ul>
+        </li>
+        <li>Click <strong>Show more</strong>. Scroll to <strong>Tags</strong>. Paste all tags from the Trello card. Press Enter after each. Add company names not already included.</li>
+        <li>Scroll to <strong>Comments and interaction</strong> → set Comments to <strong>Disabled</strong>.</li>
+        <li>Do <strong>not</strong> tick "Contains paid promotion" for editorial content.</li>
+        <li>Scroll to <strong>Altered content</strong> → select <strong>No</strong>.</li>
+        <li>Hit <strong>Save</strong>.</li>
+        <li>Copy the video URL from the right-hand panel. Go to Trello card → Custom Fields → <strong>Approved YouTube URL</strong> → paste it in.</li>
+      </ol>
+      <div class="callout info">
+        <div class="callout-title">Tip: copying tags across multiple videos</div>
+        <p>When publishing several videos from the same event, use the <strong>Copy all tags</strong> button in YouTube Studio on the first video, then paste into subsequent ones and edit as needed.</p>
+      </div>
+      <div class="screenshot-set">
+        <div class="screenshot-set-label">Switching to the TelecomTV account</div>
+        ${img('step-11-youtube-studio.png', 'Click your account icon (top right) → Switch account → select TelecomTV (@TelecomTV2022). Then click YouTube Studio from the same menu.')}
+        ${img('step-11B-youtube-studio.png', 'YouTube Studio channel dashboard. Click Content in the left sidebar to see your videos — the most recently uploaded appears at the top.')}
+      </div>
+    </div>
+  </div>`,
+
+  // 12
+  () => `
+  <div class="step-view">
+    <div class="step-meta"><span class="part-label">Part 2 — Publishing</span><span class="tag tag-updated">✎ Updated</span></div>
+    <h1 class="step-title">Upload image to TelecomTV CMS</h1>
+    <div class="step-body">
+      <p>Go to <a href="https://admin.telecomtv.com" target="_blank">admin.telecomtv.com</a>. Login details from Tim.</p>
+      <ol>
+        <li>Media → <strong>Upload Image</strong> (or Media → Images → Upload).</li>
+        <li>Upload the same thumbnail used in Steps 9–10.</li>
+        <li>Rename it something meaningful — use the Production ID or a recognisable version of the title.</li>
+      </ol>
+      ${placeholder('TelecomTV CMS — Media upload page — screenshot pending')}
+    </div>
+  </div>`,
+
+  // 13
+  (ed) => `
+  <div class="step-view">
+    <div class="step-meta"><span class="part-label">Part 2 — Publishing</span><span class="tag tag-new">★ New</span></div>
+    <h1 class="step-title">Create a new video in the CMS</h1>
+    <div class="step-body">
+      <ol>
+        <li>Media → <strong>New Video</strong>.</li>
+        <li><strong>Title:</strong> paste the Vimeo filename — it contains the Production ID, making it easy to find later.</li>
+        <li><strong>Player:</strong> select <strong>YouTube</strong> for standard videos. Only use Vimeo if Sophie specifically needs a Vimeo player for a carousel.</li>
+        <li><strong>External ID:</strong> copy the YouTube URL from the Trello card. Paste it in, then <strong>delete everything up to and including the final slash</strong> — you only need the ID string at the end (e.g. <code>dQw4w9WgXcQ</code>). If you save with the full URL the CMS will show an error — just remove the prefix and save again.</li>
+        <li><strong>Transcript:</strong> paste the corrected transcript.</li>
+      </ol>
+
+      <div class="diff-cols">
+        <div class="diff-col general">
+          <div class="diff-col-title">Commercial</div>
+          <p>Copy the corrected transcript from the metadata tool: Transcript Library → find the transcript → copy the corrected version.</p>
+        </div>
+        <div class="diff-col editorial">
+          <div class="diff-col-title">📋 Editorial</div>
+          <p>Export from Rev via the transcript link on the Trello card: Export → Text file → copy and paste. This will change once the metadata tool rolls out to editorial.</p>
+        </div>
+      </div>
+
+      <ol start="6">
+        <li><strong>Duration in seconds:</strong> enter the video length as a number of seconds. Use a converter if needed — e.g. 14 mins 13 secs = 853. This field does <strong>not</strong> auto-populate.</li>
+        <li>Hit <strong>Save</strong>. Note the CMS Video ID — useful if you need to find it later.</li>
+      </ol>
+      ${placeholder('TelecomTV CMS — New Video form (player, External ID, transcript, duration) — screenshot pending')}
+    </div>
+  </div>`,
+
+  // 14
+  (ed) => `
+  <div class="step-view">
+    <div class="step-meta"><span class="part-label">Part 2 — Publishing</span><span class="tag tag-updated">✎ Updated</span></div>
+    <h1 class="step-title">Create the content page in the CMS</h1>
+    <div class="step-body">
+      <p>Do not create a blank content item. Always duplicate a template — which one depends on content type.</p>
+      <div class="diff-cols">
+        <div class="diff-col general">
+          <div class="diff-col-title">Commercial</div>
+          <p>Duplicate <strong>Template AF Video</strong>. Includes sponsor layout chapters, registration options, and full tag structure.</p>
+        </div>
+        <div class="diff-col editorial">
+          <div class="diff-col-title">📋 Editorial</div>
+          <p>Duplicate <strong>Template CR Editorial Video</strong>. Simpler — just video, subheading, description, and tags. No sponsor layout.</p>
+          <p style="margin-top:8px;">Tip: if a content item of the same series already exists (e.g. another Huawei CNBG video), duplicating that is faster — it carries the correct sponsor logos and most tags.</p>
+        </div>
+      </div>
+
+      <p style="margin-top:4px;"><strong>Go to Content → All Content</strong>, find the correct template, then use the dropdown menu → <strong>Duplicate</strong>.</p>
+
+      <p style="margin-top:4px; font-weight:500;">Once inside the duplicated item:</p>
+      <ol>
+        <li><strong>Headline:</strong> paste the approved title. This becomes the URL slug — <strong>finalise the title before saving</strong>.</li>
+        <li><strong>Chapter 1 — Video:</strong> select the video created in the previous step. Search by Production ID. The video auto-displays — no other settings needed.</li>
+        <li><strong>Chapter 2 — Subheading:</strong> for one-on-one interviews, enter the interviewee's <strong>Name and Job Title</strong>. This appears on the page beneath the headline and replaces the 'Featuring' line used in YouTube descriptions.</li>
+        <li><strong>Chapter 3 — Description:</strong> paste the approved description.</li>
+      </ol>
+      <div class="callout info">
+        <div class="callout-title">Note on sponsor layout chapters</div>
+        <p>Any sponsor layout or registration chapters in the template will already be unticked by default. Leave them alone unless instructed otherwise by Alex.</p>
+      </div>
+      ${placeholder('TelecomTV CMS — Content item showing Headline, Chapter 1 (video), Chapter 2 (subheading), Chapter 3 (description) — screenshot pending')}
+    </div>
+  </div>`,
+
+  // 15
+  (ed) => `
+  <div class="step-view">
+    <div class="step-meta"><span class="part-label">Part 2 — Publishing</span></div>
+    <h1 class="step-title">Tags &amp; metadata in the CMS</h1>
+    <div class="step-body">
+      <p>Scroll to the <strong>Tags</strong> section of the content item.</p>
+      <ul>
+        <li><strong>Primary tag:</strong> main topic or event (e.g. AI Native Telco, MWC 2026). Should be on the Trello card.</li>
+        <li><strong>Companies:</strong> add all relevant company names. Check the Trello card or metadata tool output.</li>
+        <li><strong>Technologies:</strong> select relevant options (e.g. AI, 5G, Optical Transformation &amp; Performance).</li>
+        <li><strong>Industry sectors:</strong> use Telcos &amp; CSPs when a telco or CSP features. Vendors is optional.</li>
+        <li><strong>Regions:</strong> based on the interviewee's company or the event location.</li>
+        <li><strong>Author:</strong></li>
+      </ul>
+      <div class="diff-cols" style="margin-top:4px;">
+        <div class="diff-col general">
+          <div class="diff-col-title">Commercial</div>
+          <p>Leave as TelecomTV unless the content has a named presenter. For Huawei CNBG / WinWin content filmed by Huawei, always use TelecomTV — do not add Tony Poulos's name to those.</p>
+        </div>
+        <div class="diff-col editorial">
+          <div class="diff-col-title">📋 Editorial</div>
+          <p>Set to <strong>Ray Le Maistre</strong> for all editorial content.</p>
+        </div>
+      </div>
+      ${placeholder('TelecomTV CMS — Tags section (Primary tag, Companies, Technologies, Regions, Author) — screenshot pending')}
+    </div>
+  </div>`,
+
+  // 16
+  () => `
+  <div class="step-view">
+    <div class="step-meta"><span class="part-label">Part 2 — Publishing</span></div>
+    <h1 class="step-title">Publishing flags &amp; save</h1>
+    <div class="step-body">
+      <ol>
+        <li>Click the <strong>Flag</strong> button and select <strong>AF Help</strong>. This makes the item easy for Alex to spot in the CMS list.</li>
+        <li><strong>Active:</strong> make sure this is <strong>unticked</strong>. The page must not go live until Alex has reviewed it.</li>
+        <li><strong>Published / Sort Order:</strong> copy the current date and time from the CMS and paste into both fields.</li>
+        <li>Hit <strong>Save</strong>.</li>
+      </ol>
+      <div class="callout warning">
+        <div class="callout-title">Double-check before saving</div>
+        <p>Confirm Active is unticked. A ticked Active box means the content goes live the moment you save.</p>
+      </div>
+      ${placeholder('TelecomTV CMS — Publishing section (Flag = AF Help, Active unticked, Published date) — screenshot pending')}
+    </div>
+  </div>`,
+
+  // 17
+  () => `
+  <div class="step-view">
+    <div class="step-meta"><span class="part-label">Part 2 — Publishing</span><span class="tag tag-new">★ New</span></div>
+    <h1 class="step-title">Preview &amp; notify Alex</h1>
+    <div class="step-body">
+      <ol>
+        <li>In the All Content list, find your newly saved item.</li>
+        <li>Dropdown menu → <strong>Preview on website</strong>. Copy the preview URL.</li>
+        <li>Go to the Trello card. Add a comment, tag <strong>@alexfarrant</strong>, paste the preview link, and note it is ready for final review.</li>
+        <li>Move the card to <strong>Created but Unpublished in CMS</strong>.</li>
+      </ol>
+      <div class="callout info">
+        <div class="callout-title">What happens next</div>
+        <p>Alex reviews the preview. If everything is correct, he sets the content to Active (live), moves the card, adds it to the Google Ads tracking sheet, and sets up the Google Ads campaign.</p>
+        <p style="margin-top:6px;">You do not need to touch the Google Ads sheet or campaigns.</p>
+      </div>
+      <div class="callout danger">
+        <div class="callout-title">✕ Removed step</div>
+        <p>The original process included adding content to the Google Ads doc and creating a campaign as part of the publisher's job. This is now handled by Alex after review.</p>
+      </div>
+      ${placeholder('TelecomTV CMS — All Content list showing dropdown menu with Preview on website option — screenshot pending')}
+    </div>
+  </div>`,
+
+  // 18 — Done
+  () => `
+  <div class="final">
+    <div class="final-icon">✅</div>
+    <h2>That's the process</h2>
+    <p>The video is now prepped, staged in the CMS, and Alex has been notified. Once he reviews and sets it live, the Google Ads campaign will follow.</p>
+    <p style="margin-bottom:32px;">Use the sidebar to jump back to any step, or the mode toggle at the top to switch between general and editorial views.</p>
+
+    <div style="text-align:left; border:1px solid var(--grey-2); border-radius:var(--radius); padding:20px 24px; margin-bottom:24px;">
+      <p style="font-weight:500; margin-bottom:12px; font-size:14px;">Quick reference — logins</p>
+      <table style="width:100%; font-size:13px; border-collapse:collapse;">
+        <tr style="border-bottom:1px solid var(--grey-2);">
+          <td style="padding:7px 0; color:var(--text-2); width:40%">Vimeo</td>
+          <td style="padding:7px 0; color:var(--text-3)">TelecomTV account — login from Alex</td>
+        </tr>
+        <tr style="border-bottom:1px solid var(--grey-2);">
+          <td style="padding:7px 0; color:var(--text-2)">YouTube Studio</td>
+          <td style="padding:7px 0; color:var(--text-3)">Switch to TelecomTV account via account icon</td>
+        </tr>
+        <tr style="border-bottom:1px solid var(--grey-2);">
+          <td style="padding:7px 0; color:var(--text-2)">TelecomTV CMS</td>
+          <td style="padding:7px 0; color:var(--text-3)">admin.telecomtv.com — login from Tim</td>
+        </tr>
+        <tr style="border-bottom:1px solid var(--grey-2);">
+          <td style="padding:7px 0; color:var(--text-2)">Metadata tool</td>
+          <td style="padding:7px 0; color:var(--text-3)">URL from Alex — password: <code>Password</code></td>
+        </tr>
+        <tr>
+          <td style="padding:7px 0; color:var(--text-2)">Rev.com</td>
+          <td style="padding:7px 0; color:var(--text-3)">Alex handles transcription — access via Alex if needed</td>
+        </tr>
+      </table>
+    </div>
+  </div>`
+];
+
+renderStep(0);
+</script>
+</body>
+</html>
